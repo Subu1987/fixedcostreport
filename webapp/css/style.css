@@ -36,7 +36,7 @@
 }
 
 .highlightedRow {
-    background-color: #e5e5ff !important;
+   background-color: #5fb2f7 !important;
 }
 
 
@@ -55,17 +55,20 @@
 }
 
 .pdfTable td {
-    border: 1px solid #4c4cff;
+    border: 1px solid #c0c4cc;
     padding: 8px;
     text-align: left;
 }
 
 .pdfTable th {
-    background-color: #4d4dff;
+    background-color: #91c8f6;
     font-weight: bold;
 }
 
 .sapMListTblRow {
     margin: 0; /* Remove any margin */
     padding: 0; /* Remove any padding */
+}
+.sapMBtnInner{
+	border: none !important;
 }

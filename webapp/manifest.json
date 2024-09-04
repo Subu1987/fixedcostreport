@@ -29,6 +29,14 @@
 					"odataVersion": "2.0",
 					"localUri": "localService/ZFI_FCR_SSC_SRV/metadata.xml"
 				}
+			},
+			"authService": {
+				"uri": "/sap/opu/odata/sap/ZFI_FCR_DEPT_SRV/",
+				"type": "OData",
+				"settings": {
+					"odataVersion": "2.0",
+					"localUri": "localService/metadata.xml"
+				}
 			}
 		}
 	},
@@ -94,6 +102,16 @@
 					"useBatch": false
 				}
 			},
+			"authSetModel": {
+				"dataSource": "authService",
+				"preload": true,
+				"settings": {
+					"useBatch": false
+				}
+			},
+			"authData": {
+				"type": "sap.ui.model.json.JSONModel"
+			},
 			"globalData": {
 				"type": "sap.ui.model.json.JSONModel"
 			},
@@ -120,11 +138,9 @@
 			}
 		},
 		"resources": {
-			"css": [
-				{
-					"uri": "css/style.css"
-				}
-			]
+			"css": [{
+				"uri": "css/style.css"
+			}]
 		},
 		"routing": {
 			"config": {
@@ -136,18 +152,15 @@
 				"controlAggregation": "pages",
 				"clearAggregation": false
 			},
-			"routes": [
-				{
-					"name": "home",
-					"pattern": "",
-					"target": "home"
-				},
-				{
-					"name": "chart",
-					"pattern": "chart",
-					"target": "chart"
-				}
-			],
+			"routes": [{
+				"name": "home",
+				"pattern": "",
+				"target": "home"
+			}, {
+				"name": "chart",
+				"pattern": "chart",
+				"target": "chart"
+			}],
 			"targets": {
 				"home": {
 					"viewName": "Home",

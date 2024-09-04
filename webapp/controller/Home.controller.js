@@ -17,6 +17,8 @@ sap.ui.define([
 		onInit: function() {
 
 			this.oRouter = this.getOwnerComponent().getRouter();
+			//// 04.09.2024 Authorization Changes ////
+			this._getUserIdFromLoggedInUser();
 
 			// call the input parameters data
 			this.getLedgerParametersData();
@@ -36,6 +38,152 @@ sap.ui.define([
 			/*this._validateInputFields();*/
 			this._columnVisible();
 
+		},
+		_getUserIdFromLoggedInUser: function() {
+			var that = this;
+
+			// the application is running within the Fiori Launchpad
+			/*if (sap.ushell && sap.ushell.Container) {
+				sap.ushell.Container.getServiceAsync("UserInfo").then(function(UserInfo) {
+						var userId = UserInfo.getId();
+						console.log(UserInfo);
+						//var userId = "1000";
+						that._onGlobalUserIdSet(userId);
+					})
+					.catch(function(oError) {
+						MessageBox.error("Error retrieving ShellUIService: " + oError.message);
+						console.error("Error retrieving ShellUIService: ", oError);
+					});
+			} else {*/
+			// Fallback method using AJAX to call /sap/bc/ui2/start_up
+			jQuery.ajax({
+				url: "/sap/bc/ui2/start_up",
+				method: "GET",
+				success: function(data) {
+					var userId = data.id;
+					console.log("User ID from /sap/bc/ui2/start_up:", userId);
+					that._onGlobalUserIdSet(userId);
+				},
+				error: function(xhr, status, error) {
+					MessageBox.error("Error retrieving User ID via AJAX: " + status);
+					console.error("Error retrieving User ID via AJAX:", status, error);
+				}
+			});
+
+			/*}*/
+		},
+
+		_onGlobalUserIdSet: function(sUserId) {
+			var oGlobalDataModel = this.getOwnerComponent().getModel("globalData");
+			if (oGlobalDataModel) {
+				oGlobalDataModel.setProperty("/userId", sUserId || "");
+
+				// Call userAuthSet after the userId is set
+				this.userAuthSet();
+			} else {
+				console.error("Global data model is not available.");
+			}
+		},
+
+		userAuthSet: function() {
+			var that = this;
+			var oModel = this.getOwnerComponent().getModel("authSetModel");
+			var oGlobalData = this.getOwnerComponent().getModel("globalData").getData();
+			var oUrl = "/AUTHSet(UNAME='" + oGlobalData.userId + "')";
+
+			sap.ui.core.BusyIndicator.show();
+
+			oModel.read(oUrl, {
+				urlParameters: {
+					"sap-client": "400"
+				},
+
+				success: function(response) {
+					var oData = response;
+					console.log(oData);
+
+					var oAuthDataModel = that.getOwnerComponent().getModel("authData");
+					oAuthDataModel.setData(oData);
+
+					// check in oData value is available or not 
+					if (typeof oData !== 'undefined' && oData.length === 0) {
+
+						// hide the busy indicator
+						sap.ui.core.BusyIndicator.hide();
+						sap.m.MessageBox.information('There are no data available!');
+						/*that._columnVisible();*/
+					} else {
+						/*that._assignVisiblity(oData, that);*/
+
+						///// Authorization Changes /////////
+						var inputCompanyCode = that.byId("inputCompanyCode").getValue();
+						that.totalRadioBtnCheck(inputCompanyCode);
+						that.authorizationCheck();
+
+						// hide the busy indicator
+						sap.ui.core.BusyIndicator.hide();
+					}
+
+				},
+				error: function(error) {
+					sap.ui.core.BusyIndicator.hide();
+					console.log(error);
+					var errorObject = JSON.parse(error.responseText);
+					sap.m.MessageBox.error(errorObject.error.message.value);
+				}
+			});
+		},
+		authorizationCheck: function() {
+			var oAuthDataModel = this.getOwnerComponent().getModel("authData");
+			var oGlobalDataModel = this.getOwnerComponent().getModel("globalData");
+			var oAuthData = oAuthDataModel.oData;
+			var totalRadioBtn = oGlobalDataModel.getProperty("/totalRadioBtnChk");
+
+			////// Authorization Change ////////
+			if (oAuthData.PRS === "X") {
+				oGlobalDataModel.setProperty("/reportS", "PRS");
+				this.byId("PRS").setSelected(true);
+			} else if (oAuthData.FTRS === "X") {
+				oGlobalDataModel.setProperty("/reportS", "FTRS");
+				this.byId("FTRS").setSelected(true);
+			} else if (oAuthData.CORP === "X") {
+				oGlobalDataModel.setProperty("/reportS", "CORP");
+				this.byId("CORP").setSelected(true);
+			} else if (totalRadioBtn === "X") {
+				oGlobalDataModel.setProperty("/reportS", "TOTAL");
+				this.byId("companytotal").setSelected(true);
+			} else {
+				oGlobalDataModel.setProperty("/reportS", "");
+			}
+
+			// var inputCompanyCode = this.byId("inputCompanyCode").getValue();
+			// this.totalRadioBtnCheck(inputCompanyCode);
+
+		},
+		totalRadioBtnCheck: function(sValue) {
+			var oAuthDataModel = this.getOwnerComponent().getModel("authData");
+			var oGlobalDataModel = this.getOwnerComponent().getModel("globalData");
+			var oAuthData = oAuthDataModel.oData;
+			var compCode = [];
+			var compArr = [];
+			compArr = Object.entries(oAuthData); //// Convert Object Data into Array ////
+			for (var i = 0; i < compArr.length; i++) {
+				if (compArr[i][0].includes("TOTAL_") && compArr[i][1] === "X") {
+					var oCode = compArr[i][0].slice(6);
+					if (sValue === oCode) {
+						this.byId("companytotal").setVisible(true);
+						oGlobalDataModel.setProperty("/totalRadioBtnChk", "X");
+						break;
+					}
+				} else if (compArr[i][0].includes("TOTAL_") && compArr[i][1] === "") {
+					var oCode = compArr[i][0].slice(6);
+					if (sValue === oCode) {
+						this.byId("companytotal").setVisible(false);
+						oGlobalDataModel.setProperty("/totalRadioBtnChk", "");
+						break;
+					}
+				}
+			}
 		},
 		_validateInputFields: function() {
 			var inputLedger = this.byId("inputLedger");
@@ -132,6 +280,8 @@ sap.ui.define([
 					oGlobalDataModel.setProperty(sProperty, sInputValue);
 				}
 			}
+			/// 04.09.2024 Total Radio Btn Check based on Company Code 
+			this.totalRadioBtnCheck(sInputValue);
 
 			// Apply ValueState based on input value
 			if (sInputValue.trim() === "") {
@@ -199,12 +349,16 @@ sap.ui.define([
 					"sap-client": "400"
 				},
 				success: function(response) {
-					var pData = response.results;
+					var pData = response.results.reverse();
 					console.log(pData);
 					sap.ui.core.BusyIndicator.hide();
 					// set the ledger data 
 					var ocompanyCodeDataModel = that.getOwnerComponent().getModel("companyCodeData");
 					ocompanyCodeDataModel.setData(pData);
+					
+					// set the default input value in company code
+					var inputCompanyCode = that.byId("inputCompanyCode");
+					inputCompanyCode.setValue(pData[0].Companycode);
 
 				},
 				error: function(error) {
@@ -394,6 +548,9 @@ sap.ui.define([
 				var ledgerInput = this.byId(this._companyCodeInputId);
 				var newValue = oSelectedItem.getTitle();
 				ledgerInput.setValue(newValue);
+				
+				this.totalRadioBtnCheck(newValue); //// Total Radio Btn Check
+				this.authorizationCheck();
 
 				//chk the blank input box validation
 				var inputCompanyCode = this.byId("inputCompanyCode");
@@ -542,7 +699,8 @@ sap.ui.define([
 			var sText;
 			/*if (sId === this.byId("splitViewSwitch").getId()) {
 				sText = "Split View";
-			} else */if (sId === this.byId("tabularDataSwitch").getId()) {
+			} else */
+			if (sId === this.byId("tabularDataSwitch").getId()) {
 				sText = "Tabular Data";
 			} else if (sId === this.byId("chartDataSwitch").getId()) {
 				sText = "Chart Data";
@@ -568,14 +726,14 @@ sap.ui.define([
 					case "Tabular Data":
 						oSplitterLayoutData1.setSize("100%");
 						oSplitterLayoutData2.setSize("0%");
-						
+
 						// pdf btn
 						this.byId("downloadPdfBtn").setEnabled(true);
 						break;
 					case "Chart Data":
 						oSplitterLayoutData1.setSize("0%");
 						oSplitterLayoutData2.setSize("100%");
-						
+
 						// pdf btn
 						this.byId("downloadPdfBtn").setEnabled(false);
 						break;
@@ -595,7 +753,7 @@ sap.ui.define([
 			oColumnVisibleData.glAcctLongText = oData[0].GlText === "" ? false : true;
 			oColumnVisibleData.graphColumnVisible = oData[0].DET_FLAG === "X" ? false : true;
 			oGlobalData.togglePanelVisibility = oData[0].DET_FLAG === "X" ? "X" : "";
-			
+
 			// SplitterLayoutData elements
 			var oSplitterLayoutData1 = this.byId("splitterLayoutData1");
 			var oSplitterLayoutData2 = this.byId("splitterLayoutData2");
@@ -610,14 +768,14 @@ sap.ui.define([
 				this.loadDefaultGraph();
 				this.byId("panelForm").setExpanded(false);
 				this.byId("chartDataSwitch").setState(true);
-				
+
 				// Update SplitterLayoutData sizes for split view
 				oSplitterLayoutData1.setSize("0%");
 				oSplitterLayoutData2.setSize("100%");
-				
+
 				// pdf button
 				this.byId("downloadPdfBtn").setEnabled(false);
-				
+
 			} else {
 
 				this.byId("panelForm").setExpanded(false);
@@ -627,7 +785,6 @@ sap.ui.define([
 				this._removeHighlight();
 			}
 
-			
 			then.getOwnerComponent().getModel("columnVisible").setData(oColumnVisibleData);
 			then.getOwnerComponent().getModel("globalData").setData(oGlobalData);
 		},
@@ -718,24 +875,30 @@ sap.ui.define([
 					onClose: function(oAction) {
 						if (oAction === sap.m.MessageBox.Action.OK) {
 							// Clear input fields
+							var oCompanyCodeDataModel = that.getOwnerComponent().getModel("companyCodeData");
+							var oCompCode=oCompanyCodeDataModel.oData[0].Companycode;                   
+							that.byId("inputCompanyCode").setValue(oCompCode); //// Authorization Change ////
+							that.totalRadioBtnCheck(oCompCode);
+							/////  Authorization Changes //////
+							that.authorizationCheck();
 							that.byId("inputLedger").setValue("0L");
-							that.byId("inputCompanyCode").setValue("1100");
+							// that.byId("inputCompanyCode").setValue("1100");
 							that.byId("inputFiscalYear").setValue("");
 							that.byId("inputFromPeriod").setValue("01");
 							that.byId("inputToPeriod").setValue("12");
 
 							// Deselect radio buttons
-							that.byId("PRS").setSelected(true);
-							that.byId("FTRS").setSelected(false);
-							that.byId("CORP").setSelected(false);
-							that.byId("companytotal").setSelected(false);
+							// that.byId("PRS").setSelected(true);
+							// that.byId("FTRS").setSelected(false);
+							// that.byId("CORP").setSelected(false);
+							// that.byId("companytotal").setSelected(false);
 							that.byId("detailedlist").setSelected(true);
 							that.byId("summarylist").setSelected(false);
 
 							// Clear list data
 							var oListDataModel = that.getOwnerComponent().getModel("listData");
 							oListDataModel.setData({});
-							
+
 							// clear the chart data 
 							var oChartDataModel = that.getOwnerComponent().getModel("chartData");
 							oChartDataModel.setData({});

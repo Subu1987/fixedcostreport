@@ -29,6 +29,15 @@
         "entryPath": "/sap/opu/odata"
       },
       "description": "DEV"
+    },
+    {
+      "path": "/sap/bc/ui2/start_up",
+      "target": {
+        "type": "destination",
+        "name": "DEV",
+        "entryPath": "/sap/bc/ui2/start_up"
+      },
+      "description": "DEV"
     }
   ],
   "sendWelcomeFileRedirect": true

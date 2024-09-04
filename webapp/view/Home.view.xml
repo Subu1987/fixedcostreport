@@ -16,7 +16,7 @@
 								<HBox direction="Column" width="18%">
 									<Label text="Company Code" design="Bold"/>
 									<Input id="inputCompanyCode" class="sapUiSmallMarginBottom" type="Text" placeholder="Enter Value" showValueHelp="true"
-										valueHelpRequest="handleValueCompanyCode" value="1100" required="true" liveChange="onLiveChange"/>
+										valueHelpRequest="handleValueCompanyCode" value="" required="true" liveChange="onLiveChange"/>
 								</HBox>
 								<HBox direction="Column" width="18%">
 									<Label text="Fiscar Year" design="Bold"/>
@@ -34,14 +34,13 @@
 										valueHelpRequest="handleValueDialogToPeriod" value="12" required="true" liveChange="onLiveChange"/>
 								</HBox>
 							</FlexBox>
-							<FlexBox width="90%" id="RadioBtn" justifyContent="SpaceAround" class="radioBtnCssRound" alignItems="Center"
-								visible="true">
+							<FlexBox width="90%" id="RadioBtn" justifyContent="SpaceAround" class="radioBtnCssRound" alignItems="Center" visible="true">
 								<FlexBox>
 									<RadioButtonGroup id="company" columns="5" select="onRadioButtonSelectReports">
-										<RadioButton id="PRS" text="PRS"/>
-										<RadioButton id="FTRS" text="FTRS"/>
-										<RadioButton id="CORP" text="CORP"/>
-										<RadioButton id="companytotal" text="TOTAL"/>
+										<RadioButton id="PRS" text="PRS" visible="{= ${authData>/PRS} === 'X' ? true : false}"/>
+										<RadioButton id="FTRS" text="FTRS" visible="{= ${authData>/FTRS} === 'X' ? true : false}"/>
+										<RadioButton id="CORP" text="CORP" visible="{= ${authData>/CORP} === 'X' ? true : false}"/>
+										<RadioButton id="companytotal" text="TOTAL" visible="false"/>
 									</RadioButtonGroup>
 								</FlexBox>
 								<FlexBox>
@@ -53,9 +52,9 @@
 								<FlexBox>
 									<Button id="searchData" icon="sap-icon://search" text="" iconFirst="false" type="Emphasized" class="sapUiTinyMarginEnd smallIcon"
 										press="getListData"/>
-									<Button id="downloadPdfBtn" enabled="false" icon="sap-icon://pdf-attachment" text="" iconFirst="false" type="Emphasized" class="sapUiTinyMarginEnd smallIcon"
-										press="onDownloadPDF"/>
-									<Button id="clearData"  icon="sap-icon://decline" text="" iconFirst="false" type="Emphasized" class="smallIcon" press="clearListData"/>
+									<Button id="downloadPdfBtn" enabled="false" icon="sap-icon://pdf-attachment" text="" iconFirst="false" type="Emphasized"
+										class="sapUiTinyMarginEnd smallIcon" press="onDownloadPDF"/>
+									<Button id="clearData" icon="sap-icon://decline" text="" iconFirst="false" type="Emphasized" class="smallIcon" press="clearListData"/>
 								</FlexBox>
 							</FlexBox>
 						</items>
@@ -102,78 +101,79 @@
 				<content>
 					<ScrollContainer horizontal="true" vertical="true" width="100%" height="auto">
 						<l:Splitter id="splitter" height="450px">
-							<Table headerText="{globalData>/reportS} {globalData&gt;/fiscalY} Tabular Data(in Lacs)" id="dynamicTable" items="{listData>/}" fixedLayout="true" width="auto" class="pdfTable">
+							<Table headerText="{globalData>/reportS} {globalData&gt;/fiscalY} Tabular Data(in Lacs)" id="dynamicTable" items="{listData>/}"
+								fixedLayout="true" width="auto" class="pdfTable boldText">
 								<columns>
 									<Column width="100px" visible="{columnVisible>/glAcct}">
-										<Text text="G/L Acct"/>
+										<Text text="G/L Acct" class="boldText"/>
 									</Column>
 									<Column width="200px" visible="{columnVisible>/glAcctLongText}">
-										<Text text="G/L Acct Long Text"/>
+										<Text text="G/L Acct Long Text" class="boldText"/>
 									</Column>
 									<Column width="200px">
-										<Text text="G/L Group"/>
+										<Text text="G/L Group" class="boldText"/>
 									</Column>
 									<Column width="80px" visible="{columnVisible>/graphColumnVisible}">
-										<Text text="Chart"/>
+										<Text text="Chart" class="boldText"/>
 									</Column>
 									<Column width="100px">
-										<Text text="Total"/>
+										<Text text="Total" class="boldText"/>
 									</Column>
 									<Column visible="{columnVisible>/l01VFlag}" width="80px">
-										<Text text="Apr"/>
+										<Text text="Apr" class="boldText"/>
 									</Column>
 									<Column visible="{columnVisible>/l02VFlag}" width="80px">
-										<Text text="May"/>
+										<Text text="May" class="boldText"/>
 									</Column>
 									<Column visible="{columnVisible>/l03VFlag}" width="80px">
-										<Text text="Jun"/>
+										<Text text="Jun" class="boldText"/>
 									</Column>
 									<Column visible="{columnVisible>/l04VFlag}" width="80px">
-										<Text text="Jul"/>
+										<Text text="Jul" class="boldText"/>
 									</Column>
 									<Column visible="{columnVisible>/l05VFlag}" width="80px">
-										<Text text="Aug"/>
+										<Text text="Aug" class="boldText"/>
 									</Column>
 									<Column visible="{columnVisible>/l06VFlag}" width="80px">
-										<Text text="Sep"/>
+										<Text text="Sep" class="boldText"/>
 									</Column>
 									<Column visible="{columnVisible>/l07VFlag}" width="80px">
-										<Text text="Oct"/>
+										<Text text="Oct" class="boldText"/>
 									</Column>
 									<Column visible="{columnVisible>/l08VFlag}" width="80px">
-										<Text text="Nov"/>
+										<Text text="Nov" class="boldText"/>
 									</Column>
 									<Column visible="{columnVisible>/l09VFlag}" width="80px">
-										<Text text="Dec"/>
+										<Text text="Dec" class="boldText"/>
 									</Column>
 									<Column visible="{columnVisible>/l10VFlag}" width="80px">
-										<Text text="Jan"/>
+										<Text text="Jan" class="boldText"/>
 									</Column>
 									<Column visible="{columnVisible>/l11VFlag}" width="80px">
-										<Text text="Feb"/>
+										<Text text="Feb" class="boldText"/>
 									</Column>
 									<Column visible="{columnVisible>/l12VFlag}" width="80px">
-										<Text text="Mar"/>
+										<Text text="Mar" class="boldText"/>
 									</Column>
 									<Column visible="{columnVisible>/l13VFlag}" width="80px">
-										<Text text="Specl 1"/>
+										<Text text="Specl 1" class="boldText"/>
 									</Column>
 									<Column visible="{columnVisible>/l14VFlag}" width="80px">
-										<Text text="Specl 2"/>
+										<Text text="Specl 2" class="boldText"/>
 									</Column>
 									<Column visible="{columnVisible>/l15VFlag}" width="80px">
-										<Text text="Specl 3"/>
+										<Text text="Specl 3" class="boldText"/>
 									</Column>
 									<Column visible="{columnVisible>/l16VFlag}" width="80px">
-										<Text text="Specl 4"/>
+										<Text text="Specl 4" class="boldText"/>
 									</Column>
 								</columns>
 								<items>
 									<ColumnListItem class="sapMListTblRow">
 										<cells>
-											<Text text="{listData>Racct}"/>
-											<Text text="{listData>GlText}"/>
-											<Text text="{listData>GlAcGroup}"/>
+											<Text text="{listData>Racct}" class="boldText"/>
+											<Text text="{listData>GlText}" class="boldText"/>
+											<Text text="{listData>GlAcGroup}" class="boldText"/>
 											<Button id="chartButton" class="chartButton" icon="sap-icon://vertical-bar-chart" text="" press="onChartButtonPress"/>
 											<Text text="{listData>Total}"/>
 											<Text text="{listData>L01}"/>
@@ -208,8 +208,7 @@
 										<RadioButton id="donutChart" text="Donut Chart"/>
 									</RadioButtonGroup>
 								</FlexBox>
-								<chart:ChartContainer showLegend="false" showLegendButton="false" autoAdjustHeight="true" id="chartContainer" showFullScreen="true"
-									title="">
+								<chart:ChartContainer showLegend="false" showLegendButton="false" autoAdjustHeight="true" id="chartContainer" showFullScreen="true" title="">
 									<chart:ChartContainerContent icon="sap-icon://horizontal-stacked-chart" title="Stacked_bar Chart">
 										<chart:content>
 											<viz:VizFrame id="oVizFrame" busy="false" busyIndicatorDelay="1000" visible="true"
