@@ -203,9 +203,9 @@
 								<FlexBox>
 									<RadioButtonGroup id="onSelectChartType" columns="5" select="onSelectChartType">
 										<RadioButton id="columnChart" text="Column Chart"/>
-										<RadioButton id="pieChart" text="Pie Chart"/>
+										<!--<RadioButton id="pieChart" text="Pie Chart"/>
 										<RadioButton id="lineChart" text="Line Chart"/>
-										<RadioButton id="donutChart" text="Donut Chart"/>
+										<RadioButton id="donutChart" text="Donut Chart"/>-->
 									</RadioButtonGroup>
 								</FlexBox>
 								<chart:ChartContainer showLegend="false" showLegendButton="false" autoAdjustHeight="true" id="chartContainer" showFullScreen="true" title="">

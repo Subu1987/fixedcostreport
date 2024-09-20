@@ -40,12 +40,12 @@
     "blockPushLevel": "Error"
   },
   "build": {
-    "buildRequired": true,
+    "buildRequired": false,
     "sourceFolder": "webapp",
     "targetFolder": "dist",
     "excludedFolders": [],
     "excludedFiles": [],
-    "lastBuildDateTime": "Thu, 30 May 2024 10:35:35 GMT"
+    "lastBuildDateTime": "Fri, 20 Sep 2024 07:03:12 GMT"
   },
   "mockpreview": {
     "mockUri": "/sap/opu/odata/sap/ZFI_FCR_SRV/",
